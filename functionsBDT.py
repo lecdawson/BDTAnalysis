@@ -196,7 +196,8 @@ def compare_train_test(clf, X_train_new, y_train, X_test_new, y_test, bins=30):
     plt.xlabel("BDT output")
     plt.ylabel("Arbitrary units")
     plt.legend(loc='best')
-    plt.show()
+    plt.savefig(BASE_PATH + 'Plots/compare_train_test.png')
+    #plt.show()
 
 def plot_roc_curve(bdt, X_test_new, y_test):
     decisions = bdt.decision_function(X_test_new)
@@ -213,7 +214,9 @@ def plot_roc_curve(bdt, X_test_new, y_test):
     plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
     plt.grid()
-    plt.show()
+    plt.savefig(BASE_PATH + 'Plots/roc_equal_weight.png')
+    
+    #plt.show()
 
 def train_bdt():
     print("Loading data...")
@@ -530,4 +533,5 @@ def optimise_bdt(X_train_new, y_train, X_test_new, y_test):
         plt.legend(handler_map={line1: HandlerLine2D(numpoints=2)})
         plt.ylabel('AUC score')
         plt.xlabel(key)
-        plt.show()
+        plt.savefig(BASE_PATH + 'Plots/optimise_bdt.png')
+        #plt.show()
