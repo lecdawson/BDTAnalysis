@@ -21,8 +21,8 @@ from collections import Counter
 
 from matplotlib.legend_handler import HandlerLine2D
 
-BASE_PATH = "/home/vagrant/MachineLearning/SciKit-Learn/rootFiles/"
-NEW_EXPORT_PATH = "/home/vagrant/MachineLearning/SciKit-Learn/rootFiles/equalWeights/"
+BASE_PATH = "/unix/nemo3/users/ldawson/"
+NEW_EXPORT_PATH = "/unix/nemo3/users/ldawson/equalWeights"
 # Limit what we extract from the ROOT files.
 BRANCH_NAMES_TRAIN = """reco.total_calorimeter_energy, reco.higher_electron_energy,
 reco.lower_electron_energy, reco.angle_between_tracks, reco.internal_probability,
@@ -92,27 +92,27 @@ def import_data_small_2():
     return signal, bkg2nu, bkg214Bi, bkg208Tl, bkgRn
 
 def import_data():
-    signal = root2array(BASE_PATH + "0nubb/sensitivity_0nubb_1E7_Pre_Cut.root",
+    signal = root2array(BASE_PATH + "Signal/0nubb/MachineLearning/sensitivity_0nubb_1E7_Pre_Cut.root",
                         "Sensitivity",
                         BRANCH_NAMES_TRAIN)
     signal = rec2array(signal)
 
-    bkg2nu = root2array(BASE_PATH + "2nubb/sensitivity_2nubb_2E8_Pre_Cut.root",
+    bkg2nu = root2array(BASE_PATH + "Signal/2nubb/MachineLearning/sensitivity_2nubb_2E8_Pre_Cut.root",
                         "Sensitivity",
                         BRANCH_NAMES_TRAIN)
     bkg2nu = rec2array(bkg2nu)
 
-    bkg214Bi = root2array(BASE_PATH + "Bi214/sensitivity_Bi214_Foils_2E8_Pre_Cut.root",
+    bkg214Bi = root2array(BASE_PATH + "Backgrounds/Bi214_Foils/MachineLearning/sensitivity_Bi214_Foils_2E8_Pre_Cut.root",
                         "Sensitivity",
                         BRANCH_NAMES_TRAIN)
     bkg214Bi = rec2array(bkg214Bi)
 
-    bkg208Tl = root2array(BASE_PATH + "Tl208/sensitivity_Tl208_Foils_2E8_Pre_Cut.root",
+    bkg208Tl = root2array(BASE_PATH + "Backgrounds/Tl208_Foils/MachineLearning/sensitivity_Tl208_Foils_2E8_Pre_Cut.root",
                         "Sensitivity",
                         BRANCH_NAMES_TRAIN)
     bkg208Tl = rec2array(bkg208Tl)
 
-    bkgRn = root2array(BASE_PATH + "Radon/sensitivity_Bi214_Wires_2E8_Pre_Cut.root",
+    bkgRn = root2array(BASE_PATH + "Backgrounds/Bi214_Wires/MachineLearning/sensitivity_Bi214_Wires_2E8_Pre_Cut.root",
                         "Sensitivity",
                         BRANCH_NAMES_TRAIN)
     bkgRn = rec2array(bkgRn)
@@ -121,35 +121,35 @@ def import_data():
 
 def import_data_2():
     print("Loading 0nubb signal to structured array...")
-    signal = root2array(BASE_PATH + "0nubb/sensitivity_0nubb_1E7_Pre_Cut_2.root",
+    signal = root2array(BASE_PATH + "Signal/0nubb/MachineLearning/sensitivity_0nubb_1E7_Pre_Cut_2.root",
                         "Sensitivity",
                         BRANCH_NAMES_TEST)
     print("Convert 0nubb signal structured array to ndarray array...")
     signal = rec2array(signal)
 
     print("Loading 2nubb bkg2nu to structured array...") 
-    bkg2nu = root2array(BASE_PATH + "2nubb/sensitivity_2nubb_2E8_Pre_Cut_2.root",
+    bkg2nu = root2array(BASE_PATH + "Signal/2nubb/MachineLearning/sensitivity_2nubb_2E8_Pre_Cut_2.root",
                         "Sensitivity",
                         BRANCH_NAMES_TEST)
     print("Convert 2nubb bkg2nu structured array to ndarray array...")
     bkg2nu = rec2array(bkg2nu)
 
     print("Loading Bi214 bkg214Bi to structured array...") 
-    bkg214Bi = root2array(BASE_PATH + "Bi214/sensitivity_Bi214_Foils_2E8_Pre_Cut_2.root",
+    bkg214Bi = root2array(BASE_PATH + "Backgrounds/Bi214_Foils/MachineLearning/sensitivity_Bi214_Foils_2E8_Pre_Cut_2.root",
                           "Sensitivity",
                           BRANCH_NAMES_TEST)
     print("Convert Bi214 bkg214Bi structured array to ndarray...")
     bkg214Bi = rec2array(bkg214Bi)
 
     print("Loading Tl208 bkg208T1 to structured array...") 
-    bkg208Tl = root2array(BASE_PATH + "Tl208/sensitivity_Tl208_Foils_2E8_Pre_Cut_2.root",
+    bkg208Tl = root2array(BASE_PATH + "Backgrounds/Tl208_Foils/MachineLearning/sensitivity_Tl208_Foils_2E8_Pre_Cut_2.root",
                           "Sensitivity",
                           BRANCH_NAMES_TEST)
     print("Convert Tl208 bkg208T1 structured array to ndarray...")
     bkg208Tl = rec2array(bkg208Tl)
 
     print("Loading Radon bkgRn to structured array to ndarray...") 
-    bkgRn = root2array(BASE_PATH + "Radon/sensitivity_Bi214_Wires_2E8_Pre_Cut_2.root",
+    bkgRn = root2array(BASE_PATH + "Backgrounds/Bi214_Wires/MachineLearning/sensitivity_Bi214_Wires_2E8_Pre_Cut_2.root",
                        "Sensitivity",
                        BRANCH_NAMES_TEST)
     print("Convert Radon bkgRn structured array to ndarray...")
@@ -227,11 +227,11 @@ def train_bdt():
 
     # print("Sampling 10% of the data for training")
     # #Create smaller samples, 10% of the size
-    # signal = np.asarray(random.sample(signal, int((len(signal))*0.1)))
-    # bkg2nu = np.asarray(random.sample(bkg2nu, int((len(bkg2nu))*0.1)))
-    # bkg214Bi = np.asarray(random.sample(bkg214Bi, int((len(bkg214Bi))*0.1)))
-    # bkg208Tl = np.asarray(random.sample(bkg208Tl, int((len(bkg208Tl))*0.1)))
-    # bkgRn = np.asarray(random.sample(bkgRn, int((len(bkgRn))*0.1)))
+    signal = np.asarray(random.sample(signal, int((len(signal))*0.1)))
+    bkg2nu = np.asarray(random.sample(bkg2nu, int((len(bkg2nu))*0.1)))
+    bkg214Bi = np.asarray(random.sample(bkg214Bi, int((len(bkg214Bi))*0.1)))
+    bkg208Tl = np.asarray(random.sample(bkg208Tl, int((len(bkg208Tl))*0.1)))
+    bkgRn = np.asarray(random.sample(bkgRn, int((len(bkgRn))*0.1)))
 
     print("Creating arrays...")
     # X = Features (i.e. the data)
