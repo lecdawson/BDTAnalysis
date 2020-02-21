@@ -110,10 +110,10 @@ void setWeights()
   double pctRn = eventsRn/totalBkgEvents;
 
   double weight0nu = 1;
-  double weight2nu = 1;//(pct2nu/entries2nu);
-  double weightBi = 1;//(pctBi/entriesBiFoil);
-  double weightTl = 1;//(pctTl/entriesTlFoil);
-  double weightRn = 1;//(pctRn/entriesRadon);
+  double weight2nu = (pct2nu/entries2nu);//1;
+  double weightBi = (pctBi/entriesBiFoil);//1;
+  double weightTl = (pctTl/entriesTlFoil);//1;
+  double weightRn = (pctRn/entriesRadon);//1;
 
   cout<<"0nu weight: "<<weight0nu<<endl;
   cout<<"2nu weight: "<<weight2nu<<endl;
