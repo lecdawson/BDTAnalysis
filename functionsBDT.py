@@ -22,7 +22,7 @@ from collections import Counter
 from matplotlib.legend_handler import HandlerLine2D
 
 BASE_PATH = "/home/vagrant/MachineLearning/SciKit-Learn/rootFiles/"
-NEW_EXPORT_PATH = "/home/vagrant/MachineLearning/SciKit-Learn/rootFiles/equalWeights/"
+NEW_EXPORT_PATH = "/home/vagrant/MachineLearning/SciKit-Learn/rootFiles/weighted/"
 # Limit what we extract from the ROOT files.
 BRANCH_NAMES_TRAIN = """reco.total_calorimeter_energy, reco.higher_electron_energy,
 reco.lower_electron_energy, reco.angle_between_tracks, reco.internal_probability,
@@ -168,6 +168,7 @@ def compare_train_test(clf, X_train_new, y_train, X_test_new, y_test, bins=30):
     high = max(np.max(d) for d in decisions)
     low_high = (low,high)
 
+    plt.clf()
     plt.hist(decisions[0],
              color='r', alpha=0.5, range=low_high, bins=bins,
              histtype='stepfilled', density=True,
@@ -199,6 +200,84 @@ def compare_train_test(clf, X_train_new, y_train, X_test_new, y_test, bins=30):
     plt.savefig(BASE_PATH + 'Plots/compare_train_test.png')
     #plt.show()
 
+def compare_train_test_multi(clf, X_train, y_train, X_test, y_test, bins=30):
+    decisions = []
+    for X,y in ((X_train, y_train), (X_test, y_test)):
+        d1 = clf.predict_proba(X[y==1]).ravel()
+        d2 = clf.predict_proba(X[y==2]).ravel()
+        d3 = clf.predict_proba(X[y==3]).ravel()
+        d4 = clf.predict_proba(X[y==4]).ravel()
+        d5 = clf.predict_proba(X[y==5]).ravel()
+        decisions += [d1, d2, d3, d4, d5]
+
+    low = min(np.min(d) for d in decisions)
+    high = max(np.max(d) for d in decisions)
+    low_high = (low,high)
+
+    plt.clf()
+    plt.hist(decisions[0],
+             color='r', alpha=0.5, range=low_high, bins=bins,
+             histtype='stepfilled', density=True,
+             label='0nubb (train)')
+    plt.hist(decisions[1],
+             color='deepskyblue', alpha=0.5, range=low_high, bins=bins,
+             histtype='stepfilled', density=True,
+             label='2nubb (train)')
+    plt.hist(decisions[2],
+             color='royalblue', alpha=0.5, range=low_high, bins=bins,
+             histtype='stepfilled', density=True,
+             label='Bi214 (train)')
+    plt.hist(decisions[3],
+             color='blue', alpha=0.5, range=low_high, bins=bins,
+             histtype='stepfilled', density=True,
+             label='Tl208 (train)')
+    plt.hist(decisions[4],
+             color='navy', alpha=0.5, range=low_high, bins=bins,
+             histtype='stepfilled', density=True,
+             label='Radon (train)')
+
+    hist, bins = np.histogram(decisions[5],
+                              bins=bins, range=low_high, density=True)
+    scale = len(decisions[5]) / sum(hist)
+    err = np.sqrt(hist * scale) / scale
+
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.errorbar(center, hist, yerr=err, fmt='o', c='r', label='0nubb (test)')
+
+    hist, bins = np.histogram(decisions[6],
+                              bins=bins, range=low_high, density=True)
+    scale = len(decisions[6]) / sum(hist)
+    err = np.sqrt(hist * scale) / scale
+
+    plt.errorbar(center, hist, yerr=err, fmt='o', c='deepskyblue', label='2nubb (test)')
+
+    hist, bins = np.histogram(decisions[7],
+                              bins=bins, range=low_high, density=True)
+    scale = len(decisions[7]) / sum(hist)
+    err = np.sqrt(hist * scale) / scale
+
+    plt.errorbar(center, hist, yerr=err, fmt='o', c='royalblue', label='Bi214 (test)')
+
+    hist, bins = np.histogram(decisions[8],
+                              bins=bins, range=low_high, density=True)
+    scale = len(decisions[8]) / sum(hist)
+    err = np.sqrt(hist * scale) / scale
+
+    plt.errorbar(center, hist, yerr=err, fmt='o', c='blue', label='Tl208 (test)')
+
+    hist, bins = np.histogram(decisions[9],
+                              bins=bins, range=low_high, density=True)
+    scale = len(decisions[9]) / sum(hist)
+    err = np.sqrt(hist * scale) / scale
+
+    plt.errorbar(center, hist, yerr=err, fmt='o', c='navy', label='Radon (test)')
+
+    plt.xlabel("BDT output")
+    plt.ylabel("Arbitrary units")
+    plt.legend(loc='best')
+    plt.savefig(BASE_PATH + 'Plots/compare_train_test_multi.png')
+    #plt.show()
+
 def plot_roc_curve(bdt, X_test_new, y_test):
     decisions = bdt.decision_function(X_test_new)
     fpr, tpr, _ = roc_curve(y_test, decisions)
@@ -214,7 +293,7 @@ def plot_roc_curve(bdt, X_test_new, y_test):
     plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
     plt.grid()
-    plt.savefig(BASE_PATH + 'Plots/roc_equal_weight.png')
+    plt.savefig(BASE_PATH + 'Plots/roc_multi.png')
     
     #plt.show()
 
@@ -294,7 +373,7 @@ def train_bdt():
 
     print("Fitting BDT...")
     # Train the classifier - pass in weights from earlier
-    fitted_tree = bdt.fit(X_train_new, y_train)#, sample_weight=X_train_weights)
+    fitted_tree = bdt.fit(X_train_new, y_train, sample_weight=X_train_weights)
 
     print("Predicting on training data...")
     # Use the fitted tree to predict on training data and new test data
@@ -315,7 +394,7 @@ def train_bdt():
     compare_train_test(bdt, X_train_new, y_train, X_test_new, y_test)
 
     print("Saving classifier...")
-    save_path =  BASE_PATH + 'ml_calculated_data/equal_weight/'
+    save_path =  BASE_PATH + 'ml_calculated_data/weight/'
     dump(bdt, save_path + 'bdt_classifier.joblib')
     dump(fitted_tree, save_path + 'bdt_fitted_tree.joblib')
     dump(X_train_new, save_path + 'bdt_X_train_new.joblib')
@@ -323,6 +402,89 @@ def train_bdt():
     dump(X_dev_new, save_path + 'bdt_X_dev_new.joblib')
     dump(X_dev_weights, save_path + 'bdt_X_dev_weights.joblib')
     dump(X_eval_new, save_path + 'bdt_X_eval_new.joblib')
+    dump(y_test, save_path + 'bdt_y_test.joblib')
+    dump(y_train, save_path + 'bdt_y_train.joblib')
+    dump(y_dev, save_path + 'bdt_y_dev.joblib')
+    dump(y_eval, save_path + 'bdt_y_eval.joblib')
+
+    print("Finished Training.")
+
+def train_bdt_multiclass():
+    print("Loading data...")
+    if SMALL_DATA:
+        signal, bkg2nu, bkg214Bi, bkg208Tl, bkgRn = import_data_small()
+    else:
+        signal, bkg2nu, bkg214Bi, bkg208Tl, bkgRn = import_data()
+
+    print("Creating arrays...")
+        # X = Features (i.e. the data)
+    X = np.concatenate((signal,
+                    bkg2nu,
+                    bkg214Bi,
+                    bkg208Tl,
+                    bkgRn))
+
+    # y = Labels (i.e. what it is, signal / background)
+    y = np.concatenate((np.ones(signal.shape[0]),
+                    np.full(bkg2nu.shape[0],2),
+                    np.full(bkg214Bi.shape[0],3),
+                    np.full(bkg208Tl.shape[0],4),
+                    np.full(bkgRn.shape[0],5)))
+
+    print("Splitting Data...")
+    # Split the data
+    X_dev,X_eval,y_dev,y_eval = train_test_split(X,
+                                                 y,
+                                                 test_size=0.33,
+                                                 random_state=48)
+
+    X_train,X_test,y_train,y_test = train_test_split(X,
+                                                     y,
+                                                     test_size=0.33,
+                                                     random_state=42)
+
+    print("Creating classifier for DT")
+    # Create classifiers
+    dt = DecisionTreeClassifier(max_depth=12,
+                                min_samples_split=0.5,
+                                min_samples_leaf=400)
+
+    print("Creating classifier for BDT")
+    bdt = AdaBoostClassifier(dt,
+                            algorithm='SAMME',
+                            n_estimators=1200,
+                            learning_rate=0.5)
+
+    print("Fitting BDT...")
+    # Train the classifier - not using weights here as it is a multiclassifier
+    fitted_tree = bdt.fit(X_train, y_train)
+
+    print("Predicting on training data...")
+    # Use the fitted tree to predict on training data and new test data
+    y_predicted_train = bdt.predict(X_train)
+
+    print("Predicting on test data...")
+    y_predicted_test = bdt.predict(X_test)
+
+    print(classification_report(y_train, y_predicted_train, target_names=["signal", "2nu", "214Bi","208Tl","Radon"]))
+    print("Area under ROC curve for training data: {0:.4f}".format(roc_auc_score(y_train,
+                                                                                bdt.predict_proba(X_train), average="weighted", multi_class="ovr")))
+
+    print(classification_report(y_test, y_predicted_test, target_names=["signal", "2nu", "214Bi","208Tl","Radon"]))
+    print("Area under ROC curve for test data: {0:.4f}".format(roc_auc_score(y_test,
+                                                                            bdt.predict_proba(X_test), average="weighted", multi_class="ovr")))
+
+    plot_roc_curve(bdt, X_test, y_test)
+    compare_train_test_multi(bdt, X_train, y_train, X_test, y_test)
+
+    print("Saving classifier...")
+    save_path =  BASE_PATH + 'ml_calculated_data/multiClass/'
+    dump(bdt, save_path + 'bdt_classifier.joblib')
+    dump(fitted_tree, save_path + 'bdt_fitted_tree.joblib')
+    dump(X_train, save_path + 'bdt_X_train.joblib')
+    dump(X_test, save_path + 'bdt_X_test.joblib')
+    dump(X_dev, save_path + 'bdt_X_dev.joblib')
+    dump(X_eval, save_path + 'bdt_X_eval.joblib')
     dump(y_test, save_path + 'bdt_y_test.joblib')
     dump(y_train, save_path + 'bdt_y_train.joblib')
     dump(y_dev, save_path + 'bdt_y_dev.joblib')
@@ -345,12 +507,12 @@ def predict(bdt):
         signal, bkg2nu, bkg214Bi, bkg208Tl, bkgRn = import_data_2()
 
     #Create smaller samples, 1% of the size
-    print("Predicting on a sample of 1% of the data")
-    signal = np.asarray(random.sample(signal, int((len(signal))*0.01)))
-    bkg2nu = np.asarray(random.sample(bkg2nu, int((len(bkg2nu))*0.01)))
-    bkg214Bi = np.asarray(random.sample(bkg214Bi, int((len(bkg214Bi))*0.01)))
-    bkg208Tl = np.asarray(random.sample(bkg208Tl, int((len(bkg208Tl))*0.01)))
-    bkgRn = np.asarray(random.sample(bkgRn, int((len(bkgRn))*0.01)))
+    # print("Predicting on a sample of 1% of the data")
+    # signal = np.asarray(random.sample(signal, int((len(signal))*0.01)))
+    # bkg2nu = np.asarray(random.sample(bkg2nu, int((len(bkg2nu))*0.01)))
+    # bkg214Bi = np.asarray(random.sample(bkg214Bi, int((len(bkg214Bi))*0.01)))
+    # bkg208Tl = np.asarray(random.sample(bkg208Tl, int((len(bkg208Tl))*0.01)))
+    # bkgRn = np.asarray(random.sample(bkgRn, int((len(bkgRn))*0.01)))
 
     # print("Concatenating arrays...")
     # X = np.concatenate((signal,
